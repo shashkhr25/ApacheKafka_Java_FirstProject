@@ -52,7 +52,7 @@ public class ProducerDemo {
 						logger.error("Error while producing: "+ exception);
 					}
 				}
-					// TODO Auto-generated method stub
+	
 					
 				});
 		}
