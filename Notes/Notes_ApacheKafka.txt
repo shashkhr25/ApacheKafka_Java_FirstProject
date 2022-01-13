@@ -1,0 +1,136 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+KAFKA THEORY
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Mainly organised by confluent
+Developed by LinkedIn orignally
+Horizontally 
+
+Use cases:
+Messaging service
+Activity tracker
+Gather metrics
+Application logs gathering
+Stream processing
+De coupling system dependencies
+Integration with spark
+
+Companies:
+Linkedin,Uber,Netflix : recommendation, real time insights
+
+
+Topic: Similar to a table in a dB
+		Can have as many topics in kafka
+		identified by name
+		
+Partitions:
+	subpart of topic
+	start from 0
+	ordered
+	Each message within partition gets Id called offset.
+	Messages are immutable.
+	
+Broker:
+	Multiple Brokers = Clusrers
+	Broker = server
+	each broker has a broker id.
+	When u connect to bootstrap cluster u connect to every broker.
+	
+Topic replication factor:
+	If a broker is down, another can send the same data.
+	Each partition has a leader and ISR(in sync replica)	
+	
+Producers:
+	Producers write data to kafka
+	Can choose to write with acks[0,1,all]
+	Message Keys:
+		Can be anything you want, if null, data is sent round robin
+		if key is sent, all messages will be sent to same partition for the key.
+
+Consumers:
+	Read data from a topic
+	data is read within partition in order of offsets.
+	Consumers can stay inactive
+	if 3 partition only 3 consumers can read at same time.
+	
+Consumer offsets:
+	kafka stores the offsets that the consumer has been reading
+	topic is names : __consumer_offsets
+	If a consumer dies, it will be ready vailable to resume thanks to __consumer_offsets
+	
+Delivery Semantics:
+	At most once: commites as soon as message is received: can lead to loss
+	at least once: if message goes wrong , it ll be read again.
+	Exactly once: only for kafka -> kafka workflows.
+	
+Bootstrap server:
+	You need to be connected to only kafka broker and u ll be connected to cluster
+	every broker is a bootstrap server
+
+Zookeeper:
+	Manages brokers
+	Keeps a list of brokers
+	Perform leader election
+	Sends a notification to kafka in case of any changes.
+	Kafka cannot start without KAFKA
+	By design works woth odd number of servers
+	Zookeeper has a leader
+	Zookeeper does not store consumer offset
+	
+Kafka Gurantees:
+	message are appended in order of topic/partition to which they are sent.
+	consumer read messages in order they are stored.
+	with a replication factor of N , consumers and producer can handle a N-1 brokers being down.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Starting KAFKA
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Kafka and Zookeeper needs java 8 to run 
+Zookeeper by default runs on 2181 port.
+
+>zookeeper-server-start.bat C:\kafka_2.12-2.0.0\config\zookeeper.properties ------Starting Zookeeper
+>kafka-server-start.bat C:\kafka_2.12-2.0.0\config\server.properties ------Starting Kafka
+
+Creating Topics:
+	>kafka-topics.bat --zookeeper 127.0.0.1:2181 --topic first_topic --create --partitions 3 --replication-factor 1
+	#Note | Cannot create a replication factors more than no of brokers available.
+	
+	Listing topics 
+	>kafka-topics.bat --zookeeper 127.0.0.1:2181 --list
+	
+	Listic topic details
+	>kafka-topics.bat --zookeeper 127.0.0.1:2181 --topic first_topic --describe
+
+Kafka producer:
+	>kafka-console-producer.bat --broker-list 127.0.0.1:9092 --topic first_topic
+	
+	Producer with properties
+	>kafka-console-producer.bat --broker-list 127.0.0.1:9092 --topic first_topic
+	#Note: If a topic does not exist beforehand producing data into it , it ll be created
+	
+Kafka consumer:
+	>kafka-console-producer.bat --broker-list 127.0.0.1:9092 --topic first_topic
+	#Note : will only read new messages.
+	
+	>kafka-console-consumer.bat --bootstrap-server 127.0.0.1:9092 --topic first_topic --from-beginning
+	#Note: This command will read all the data present in the topic.
+	
+	>kafka-console-consumer.bat --bootstrap-server 127.0.0.1:9092 --topic first_topic --group my-first-application
+	Will create a group and all consumerpresent within same group will read data in distributed way.
+	
+	>kafka-consumer-groups.bat --bootstrap-server 127.0.0.1:9092 --list
+	Gives all the groups available
+	
+	>kafka-consumer-groups.bat --bootstrap-server 127.0.0.1:9092 --describe --group my-first-application
+	Get details of a kafka consumer group
+	
+	>kafka-consumer-groups.bat --bootstrap-server 127.0.0.1:9092 --group my-first-application --reset-offsets --to-earliest --execute --topic first_topic
+	This command will reset the offsets for group of consumers.
+	
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+KAFKA Java Programming
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Look up java code
